@@ -11,6 +11,7 @@ Live examples:
 
 - <https://ASSERT-KTH.github.io/trajectory-viewer/#file=examples/atif-example.json>
 - <https://ASSERT-KTH.github.io/trajectory-viewer/#file=examples/claude-code-example.jsonl>
+- 🪞 Meta: [the Claude Code session that built this viewer](https://ASSERT-KTH.github.io/trajectory-viewer/#file=https://gist.githubusercontent.com/monperrus/da3ff55574c2608659911db018f21bd9/raw/c0368f1c-5c45-42ec-9ced-69acefb97cfa.jsonl), rendered by the viewer itself.
 
 ## Usage
 
