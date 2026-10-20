@@ -1,0 +1,13 @@
+{
+  "name": "trajectory-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Client-side viewer for coding-agent trajectories (ATIF, Claude Code JSONL)",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/unit.test.js && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.60.0"
+  }
+}

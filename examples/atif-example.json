@@ -1,0 +1,124 @@
+{
+  "schema_version": "ATIF-v1.7",
+  "session_id": "example-session-0001",
+  "trajectory_id": "main",
+  "agent": {
+    "name": "example-agent",
+    "version": "1.0.0",
+    "model_name": "claude-opus-5-5",
+    "tool_definitions": [
+      {"type": "function", "function": {"name": "bash", "description": "Run a shell command", "parameters": {"type": "object", "properties": {"command": {"type": "string"}}, "required": ["command"]}}},
+      {"type": "function", "function": {"name": "edit", "description": "Replace text in a file", "parameters": {"type": "object", "properties": {"file_path": {"type": "string"}, "old_string": {"type": "string"}, "new_string": {"type": "string"}}}}},
+      {"type": "function", "function": {"name": "task", "description": "Delegate to a subagent", "parameters": {"type": "object", "properties": {"prompt": {"type": "string"}}}}}
+    ]
+  },
+  "notes": "Synthetic example covering every ATIF v1.7 feature the viewer renders.",
+  "steps": [
+    {
+      "step_id": 1,
+      "timestamp": "2026-10-20T09:00:00Z",
+      "source": "system",
+      "message": "You are a careful software engineering agent. Use the tools to fix bugs."
+    },
+    {
+      "step_id": 2,
+      "timestamp": "2026-10-20T09:00:01Z",
+      "source": "user",
+      "message": [
+        {"type": "text", "text": "The test `test_add` fails, see the screenshot. Please **fix** `calc.py`."},
+        {"type": "image", "source": {"media_type": "image/png", "path": "images/screenshot.png"}}
+      ]
+    },
+    {
+      "step_id": 3,
+      "timestamp": "2026-10-20T09:00:04Z",
+      "source": "agent",
+      "model_name": "claude-opus-5-5",
+      "reasoning_effort": "high",
+      "reasoning_content": "I should first run the failing test to see the error.",
+      "message": "Let me run the test suite first.",
+      "tool_calls": [
+        {"tool_call_id": "call_1", "function_name": "bash", "arguments": {"command": "pytest -q tests/test_calc.py"}}
+      ],
+      "observation": {
+        "results": [
+          {"source_call_id": "call_1", "content": "\u001b[31mF\u001b[0m\n=================================== FAILURES ===================================\n___________________________________ test_add ___________________________________\n\n    def test_add():\n>       assert add(2, 3) == 5\nE       assert -1 == 5\n\ntests/test_calc.py:4: AssertionError\n\u001b[31m1 failed\u001b[0m in 0.02s", "extra": {"is_error": true}}
+        ]
+      },
+      "metrics": {"prompt_tokens": 1520, "completion_tokens": 64, "cached_tokens": 1200, "cost_usd": 0.0031},
+      "llm_call_count": 1
+    },
+    {
+      "step_id": 4,
+      "timestamp": "2026-10-20T09:00:09Z",
+      "source": "agent",
+      "message": "`add` subtracts instead of adding. Fixing it:",
+      "tool_calls": [
+        {"tool_call_id": "call_2", "function_name": "edit", "arguments": {"file_path": "calc.py", "old_string": "def add(a, b):\n    return a - b", "new_string": "def add(a, b):\n    return a + b"}}
+      ],
+      "observation": {
+        "results": [
+          {"source_call_id": "call_2", "content": "The file calc.py has been updated."}
+        ]
+      },
+      "metrics": {"prompt_tokens": 1800, "completion_tokens": 90, "cached_tokens": 1500, "cost_usd": 0.0035}
+    },
+    {
+      "step_id": 5,
+      "timestamp": "2026-10-20T09:00:15Z",
+      "source": "agent",
+      "message": "I'll ask a subagent to double-check the other functions.",
+      "tool_calls": [
+        {"tool_call_id": "call_3", "function_name": "task", "arguments": {"prompt": "Review calc.py for similar operator mistakes."}}
+      ],
+      "observation": {
+        "results": [
+          {"source_call_id": "call_3", "subagent_trajectory_ref": [{"trajectory_id": "reviewer-1"}]}
+        ]
+      },
+      "metrics": {"prompt_tokens": 2000, "completion_tokens": 40, "cached_tokens": 1800}
+    },
+    {
+      "step_id": 6,
+      "timestamp": "2026-10-20T09:00:40Z",
+      "source": "agent",
+      "message": "",
+      "tool_calls": [
+        {"tool_call_id": "call_4", "function_name": "bash", "arguments": {"command": "pytest -q"}}
+      ],
+      "observation": {
+        "results": [
+          {"source_call_id": "call_4", "content": "\u001b[32m.....\u001b[0m\n\u001b[32m5 passed\u001b[0m in 0.03s"}
+        ]
+      },
+      "metrics": {"prompt_tokens": 2100, "completion_tokens": 20, "cached_tokens": 2000}
+    },
+    {
+      "step_id": 7,
+      "timestamp": "2026-10-20T09:00:45Z",
+      "source": "agent",
+      "message": "Fixed. Summary:\n\n| file | change |\n|---|---|\n| `calc.py` | `a - b` → `a + b` |\n\nAll 5 tests pass.",
+      "metrics": {"prompt_tokens": 2200, "completion_tokens": 50, "cached_tokens": 2100, "cost_usd": 0.002}
+    }
+  ],
+  "final_metrics": {
+    "total_prompt_tokens": 9620,
+    "total_completion_tokens": 264,
+    "total_cached_tokens": 8600,
+    "total_cost_usd": 0.0086,
+    "total_steps": 7
+  },
+  "subagent_trajectories": [
+    {
+      "schema_version": "ATIF-v1.7",
+      "trajectory_id": "reviewer-1",
+      "agent": {"name": "example-agent", "version": "1.0.0", "model_name": "claude-haiku-5-5"},
+      "steps": [
+        {"step_id": 1, "source": "user", "message": "Review calc.py for similar operator mistakes."},
+        {"step_id": 2, "source": "agent", "message": "", "tool_calls": [{"tool_call_id": "s_1", "function_name": "bash", "arguments": {"command": "cat calc.py"}}],
+         "observation": {"results": [{"source_call_id": "s_1", "content": "def add(a, b):\n    return a + b\n\ndef mul(a, b):\n    return a * b\n"}]}},
+        {"step_id": 3, "source": "agent", "message": "SUBAGENT_VERDICT: no other operator mistakes found."}
+      ]
+    }
+  ]
+}
